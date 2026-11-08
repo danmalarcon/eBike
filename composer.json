@@ -1,0 +1,22 @@
+{
+    "name": "ebike/ems",
+    "description": "eBike Management System (EMS)",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "App\\Controllers\\": "app/controllers/",
+            "App\\Models\\": "app/models/",
+            "App\\Helpers\\": "app/helpers/",
+            "App\\Middleware\\": "app/middleware/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
