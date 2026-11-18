@@ -1,101 +1,103 @@
 <?php
+
 declare(strict_types=1);
 
-$title = 'Registro de Cuenta - eBike EMS';
+$title     = 'Crear cuenta | eBike EMS';
+$layout    = 'public';
+$mainClass = 'acceso acceso--centrado';
 require_once dirname(__DIR__) . '/layouts/header.php';
 ?>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-sm-10 col-md-8 col-lg-6">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body p-4 p-sm-5">
-                    <div class="text-center mb-4">
-                        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 56px; height: 56px;">
-                            <i class="bi bi-person-plus fs-2"></i>
-                        </div>
-                        <h2 class="fw-bold fs-4">Crear una Cuenta</h2>
-                        <p class="text-muted small">Únete a eBike EMS y empieza a pedalear</p>
-                    </div>
+<div class="contenedor acceso__rejilla">
+    <section class="formulario-caja" aria-labelledby="titulo-registro">
+        <h1 id="titulo-registro">Crear cuenta</h1>
+        <p>Con tu cuenta puedes alquilar bicicletas y consultar tu historial de viajes.</p>
 
-                    <!-- Contenedor dinámico de alertas -->
-                    <div id="registerAlert" class="alert d-none" role="alert"></div>
+        <!-- Contenedor de alertas de la vista -->
+        <div id="registerAlert" class="aviso" role="alert" aria-live="polite" hidden></div>
 
-                    <form id="registerForm" novalidate>
-                        <div class="mb-3">
-                            <label for="nombre" class="form-label fw-semibold">Nombre Completo <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
-                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Carlos Ramírez" required autocomplete="name">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold">Correo Electrónico <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="carlos@correo.com" required autocomplete="email">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="telefono" class="form-label fw-semibold">Teléfono Móvil</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted"><i class="bi bi-telephone"></i></span>
-                                <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="+57 300 123 4567" autocomplete="tel">
-                            </div>
-                            <div class="form-text">Opcional. Utilizado para notificaciones del servicio.</div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="password" class="form-label fw-semibold">Contraseña <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Mínimo 8 caracteres" minlength="8" required autocomplete="new-password">
-                            </div>
-                            <div class="form-text">Debe contener como mínimo 8 caracteres.</div>
-                        </div>
-
-                        <button type="submit" id="submitBtn" class="btn btn-success w-100 py-2 fw-semibold">
-                            <span id="btnText"><i class="bi bi-check-circle me-1"></i>Registrar Cuenta</span>
-                            <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                        </button>
-                    </form>
-
-                    <hr class="my-4 text-muted">
-
-                    <div class="text-center">
-                        <span class="text-muted small">¿Ya tienes una cuenta registrada? </span>
-                        <a href="/login" class="text-decoration-none fw-semibold text-success small">Inicia sesión</a>
-                    </div>
-                </div>
+        <form id="registerForm" class="formulario formulario--rejilla"
+              action="/register" method="POST" novalidate>
+            <div class="campo campo--completo">
+                <label for="nombre">Nombre completo</label>
+                <input id="nombre" name="nombre" type="text" autocomplete="name"
+                       required minlength="3" maxlength="150" placeholder="Laura Gómez">
             </div>
-        </div>
-    </div>
+
+            <div class="campo campo--completo">
+                <label for="email">Correo electrónico</label>
+                <input id="email" name="email" type="email" autocomplete="email"
+                       required maxlength="150" placeholder="nombre@correo.com">
+            </div>
+
+            <div class="campo campo--completo">
+                <label for="telefono">Teléfono celular</label>
+                <input id="telefono" name="telefono" type="tel" autocomplete="tel"
+                       inputmode="numeric" pattern="3[0-9]{9}" maxlength="10"
+                       placeholder="3001112233" aria-describedby="ayuda-telefono">
+                <span class="ayuda" id="ayuda-telefono">
+                    Opcional. Si lo ingresas, usa 10 dígitos y empieza por 3.
+                </span>
+            </div>
+
+            <div class="campo">
+                <label for="password">Contraseña</label>
+                <input id="password" name="password" type="password"
+                       autocomplete="new-password" required minlength="8"
+                       aria-describedby="ayuda-clave">
+            </div>
+
+            <div class="campo">
+                <label for="clave2">Repite la contraseña</label>
+                <input id="clave2" name="clave2" type="password"
+                       autocomplete="new-password" required minlength="8">
+            </div>
+
+            <span class="ayuda campo--completo" id="ayuda-clave">
+                Mínimo 8 caracteres. Tu contraseña se guarda cifrada con bcrypt.
+            </span>
+
+            <div class="campo campo--check campo--completo">
+                <input id="acepto" name="acepto" type="checkbox" required>
+                <label for="acepto">
+                    Acepto los términos de uso y el tratamiento de mis datos personales.
+                </label>
+            </div>
+
+            <div class="acciones campo--completo">
+                <button class="boton" type="submit" id="submitBtn">
+                    <span id="btnText">Crear cuenta</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm d-none"
+                          role="status" aria-hidden="true"></span>
+                </button>
+                <a href="/login">Ya tengo cuenta</a>
+            </div>
+        </form>
+    </section>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('registerForm');
-    const alertBox = document.getElementById('registerAlert');
-    const submitBtn = document.getElementById('submitBtn');
-    const btnText = document.getElementById('btnText');
+    const form       = document.getElementById('registerForm');
+    const alertBox   = document.getElementById('registerAlert');
+    const submitBtn  = document.getElementById('submitBtn');
+    const btnText    = document.getElementById('btnText');
     const btnSpinner = document.getElementById('btnSpinner');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const nombre = document.getElementById('nombre').value.trim();
-        const email = document.getElementById('email').value.trim();
+        const nombre   = document.getElementById('nombre').value.trim();
+        const email    = document.getElementById('email').value.trim();
         const telefono = document.getElementById('telefono').value.trim();
         const password = document.getElementById('password').value;
+        const clave2   = document.getElementById('clave2').value;
+        const acepto   = document.getElementById('acepto').checked;
 
-        // Limpiar alertas
-        alertBox.className = 'alert d-none';
-        alertBox.textContent = '';
+        clearAlert();
 
-        if (!nombre || !email || !password) {
-            showAlert('Por favor completa los campos obligatorios (*).', 'warning');
+        if (!nombre || !email || !password || !clave2) {
+            showAlert('Por favor completa los campos obligatorios.', 'warning');
             return;
         }
 
@@ -104,7 +106,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Estado de carga
+        if (password !== clave2) {
+            showAlert('Las contraseñas no coinciden. Verifícalas e inténtalo de nuevo.', 'warning');
+            return;
+        }
+
+        if (!acepto) {
+            showAlert('Debes aceptar los términos de uso para crear tu cuenta.', 'warning');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -122,6 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (response.ok && result.success) {
                 showAlert(result.message || 'Registro exitoso. Redirigiendo al login...', 'success');
                 form.reset();
+
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 1500);
@@ -136,19 +148,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function showAlert(message, type) {
-        alertBox.textContent = message;
-        alertBox.className = `alert alert-${type} d-block mb-3`;
+        const variant = type === 'danger'
+            ? 'aviso--rojo'
+            : (type === 'warning' ? 'aviso--ambar' : 'aviso--verde');
+
+        alertBox.className = `aviso ${variant}`;
+        alertBox.innerHTML = '';
+
+        const icon = document.createElement('span');
+        icon.className = 'aviso__icono';
+        icon.textContent = type === 'success' ? '✓' : '!';
+
+        const text = document.createElement('div');
+        text.textContent = message;
+
+        alertBox.append(icon, text);
+        alertBox.hidden = false;
+    }
+
+    function clearAlert() {
+        alertBox.hidden = true;
+        alertBox.className = 'aviso';
+        alertBox.textContent = '';
     }
 
     function setLoading(isLoading) {
         submitBtn.disabled = isLoading;
-        if (isLoading) {
-            btnText.classList.add('d-none');
-            btnSpinner.classList.remove('d-none');
-        } else {
-            btnText.classList.remove('d-none');
-            btnSpinner.classList.add('d-none');
-        }
+        btnText.classList.toggle('d-none', isLoading);
+        btnSpinner.classList.toggle('d-none', !isLoading);
     }
 });
 </script>

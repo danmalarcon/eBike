@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Helpers\Validator;
+use App\Middleware\AuthMiddleware;
 use App\Models\Station;
 use Exception;
 
@@ -28,6 +29,8 @@ class StationController
      */
     public function index(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $stations = $this->stationModel->getAll();
         require_once dirname(__DIR__) . '/views/admin/stations/index.php';
     }
@@ -37,6 +40,8 @@ class StationController
      */
     public function getStationJson(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
             $this->jsonResponse(false, 'ID de estación no válido.', null, 400);
@@ -57,6 +62,8 @@ class StationController
      */
     public function create(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
 
         $missing = Validator::checkRequired($input, ['codigo', 'nombre', 'direccion', 'coordenadas', 'capacidad']);
@@ -115,6 +122,8 @@ class StationController
      */
     public function update(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
 
         $id = (int)($input['id_estacion'] ?? 0);
@@ -179,6 +188,8 @@ class StationController
      */
     public function changeStatus(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
 
         $id = (int)($input['id_estacion'] ?? 0);
@@ -208,6 +219,8 @@ class StationController
      */
     public function delete(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
         $id = (int)($input['id_estacion'] ?? 0);
 

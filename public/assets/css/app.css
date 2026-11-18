@@ -1,0 +1,141 @@
+/* =====================================================================
+   eBike EMS - Ajustes de integración MVC
+   Se carga después de styles.css para completar los componentes usados
+   por las vistas PHP sin modificar la hoja de estilos original.
+   ===================================================================== */
+
+/* Estructura de página: pie al final del viewport en páginas cortas */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body > main,
+body > .app {
+  flex: 1 0 auto;
+}
+
+/* Avisos: éxito y control del atributo hidden */
+.aviso--verde {
+  border-color: var(--pasto);
+  background: var(--pasto-claro);
+  color: var(--pasto-texto);
+}
+
+.aviso[hidden],
+.panel[hidden],
+.bicis[hidden],
+#bikeListSection[hidden],
+#startSection[hidden],
+#noBikesMsg[hidden] {
+  display: none !important;
+}
+
+.formulario-caja > .aviso {
+  margin-bottom: 1.25rem;
+}
+
+/* Tarjetas de bicicleta interactivas */
+.bici {
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+
+.bici:hover {
+  border-color: var(--pasto);
+  background: var(--blanco);
+}
+
+.bici--seleccionada {
+  border-color: var(--pasto);
+  box-shadow: 0 0 0 3px var(--pasto-claro);
+  background: var(--blanco);
+}
+
+.bici:focus-visible {
+  outline: 3px solid var(--pasto-vivo);
+  outline-offset: 2px;
+}
+
+.bici .boton {
+  justify-self: start;
+}
+
+.bici__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+/* Variante simple para las tarjetas informativas del login */
+.demo__item--simple {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.demo__item--simple .boton {
+  grid-row: auto;
+  grid-column: auto;
+  justify-self: start;
+}
+
+/* Los botones dentro de .demo__item conservan el color del botón, no el
+   color de texto secundario que la regla genérica .demo__item span aplica. */
+.demo__item .boton {
+  color: var(--tinta);
+  font-size: 0.9375rem;
+}
+
+.demo__item:hover .boton {
+  color: var(--blanco);
+}
+
+/* Encabezados de panel con acciones alineadas */
+.principal__cabecera .acciones {
+  margin: 0;
+}
+
+/* Compatibilidad con las vistas administrativas Bootstrap existentes */
+main#contenido > .container {
+  width: min(100% - 2rem, var(--ancho-sitio));
+  max-width: var(--ancho-sitio);
+  padding-inline: 0;
+}
+
+.container p {
+  margin-bottom: 1rem;
+}
+
+.container .card p:last-child,
+.container .alert p:last-child {
+  margin-bottom: 0;
+}
+
+/* Portada: dos perfiles reales (cliente y administrador) */
+.perfiles--dos {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 40rem) {
+  .perfiles--dos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* En móvil se conserva el acceso a iniciar sesión junto a crear cuenta. */
+  .cabecera__acciones .boton--secundario {
+    display: inline-flex;
+  }
+
+  .cabecera__fila {
+    gap: 0.75rem;
+  }
+
+  .cabecera__acciones {
+    gap: 0.4rem;
+  }
+
+  .cabecera__acciones .boton {
+    white-space: nowrap;
+  }
+}

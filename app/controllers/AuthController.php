@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Helpers\Session;
 use App\Helpers\Validator;
+use App\Middleware\AuthMiddleware;
 use App\Models\User;
 use Exception;
 
@@ -29,6 +30,7 @@ class AuthController
      */
     public function showLogin(): void
     {
+        $this->redirectIfAuthenticated();
         require_once dirname(__DIR__) . '/views/auth/login.php';
     }
 
@@ -37,6 +39,7 @@ class AuthController
      */
     public function showRegister(): void
     {
+        $this->redirectIfAuthenticated();
         require_once dirname(__DIR__) . '/views/auth/register.php';
     }
 
@@ -101,6 +104,8 @@ class AuthController
                 $this->jsonResponse(false, 'No se pudo completar el registro del usuario.', null, 500);
             }
         } catch (Exception $e) {
+            // Registrar el detalle en el log de PHP/Apache para diagnóstico (no exponerlo al cliente)
+            error_log('[AuthController::register] ' . get_class($e) . ': ' . $e->getMessage());
             $this->jsonResponse(false, 'Error interno del servidor al procesar el registro.', null, 500);
         }
     }
@@ -148,11 +153,29 @@ class AuthController
         // Iniciar sesión segura y guardar datos del usuario
         Session::setUser($user);
 
+        // Redirección post-login según el rol (RF-002):
+        // rol_id = 1 → Administrador, rol_id = 2 → Cliente.
+        $rolId       = (int)($user['rol_id'] ?? 0);
+        $redirectUrl = $rolId === 1 ? '/admin/dashboard' : '/user/dashboard';
+
+        $contentType   = $_SERVER['CONTENT_TYPE'] ?? '';
+        $accept        = $_SERVER['HTTP_ACCEPT'] ?? '';
+        $isJsonRequest = stripos($contentType, 'application/json') !== false
+            || stripos($accept, 'application/json') !== false;
+
+        // Formularios tradicionales: redirección HTTP real.
+        if (!$isJsonRequest) {
+            header('Location: ' . $redirectUrl, true, 302);
+            exit;
+        }
+
+        // Peticiones Fetch/AJAX: se devuelve el destino para que el cliente navegue.
         $this->jsonResponse(true, 'Inicio de sesión exitoso.', [
-            'uuid'   => $user['uuid'],
-            'nombre' => $user['nombre'],
-            'email'  => $user['email'],
-            'rol'    => $user['codigo_rol'] ?? $user['rol_id'],
+            'uuid'     => $user['uuid'],
+            'nombre'   => $user['nombre'],
+            'email'    => $user['email'],
+            'rol'      => $user['codigo_rol'] ?? $user['rol_id'],
+            'redirect' => $redirectUrl,
         ], 200);
     }
 
@@ -169,9 +192,23 @@ class AuthController
         if (stripos($contentType, 'application/json') !== false || stripos($accept, 'application/json') !== false) {
             $this->jsonResponse(true, 'Sesión finalizada exitosamente.', null, 200);
         } else {
-            header('Location: /login');
+            header('Location: /');
             exit;
         }
+    }
+
+    /**
+     * Redirige a los usuarios ya autenticados fuera de las vistas de invitado.
+     */
+    private function redirectIfAuthenticated(): void
+    {
+        if (!Session::isLoggedIn()) {
+            return;
+        }
+
+        $target = AuthMiddleware::isAdmin() ? '/admin/dashboard' : '/user/dashboard';
+        header('Location: ' . $target, true, 302);
+        exit;
     }
 
     /**

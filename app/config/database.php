@@ -10,11 +10,11 @@ declare(strict_types=1);
 
 return [
     'driver'    => 'mysql',
-    'host'      => '127.0.0.1',
+    'host'      => 'localhost',
     'port'      => 3306,
     'database'  => 'ebike_ems',
-    'username'  => 'ebike_admin',
-    'password'  => 'ebike123',
+    'username'  => 'root',
+    'password'  => '',
     'charset'   => 'utf8mb4',
     'collation' => 'utf8mb4_unicode_ci',
     'options'   => [

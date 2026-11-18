@@ -1,85 +1,93 @@
 <?php
+
 declare(strict_types=1);
 
-$title = 'Iniciar Sesión - eBike EMS';
+$title     = 'Ingresar | eBike EMS';
+$layout    = 'public';
+$mainClass = 'acceso';
 require_once dirname(__DIR__) . '/layouts/header.php';
 ?>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-sm-10 col-md-8 col-lg-5">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="card-body p-4 p-sm-5">
-                    <div class="text-center mb-4">
-                        <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 56px; height: 56px;">
-                            <i class="bi bi-bicycle fs-2"></i>
-                        </div>
-                        <h2 class="fw-bold fs-4">Bienvenido a eBike EMS</h2>
-                        <p class="text-muted small">Ingresa tus credenciales para acceder a la plataforma</p>
-                    </div>
+<div class="contenedor acceso__rejilla">
+    <section class="formulario-caja" aria-labelledby="titulo-login">
+        <h1 id="titulo-login">Ingresar</h1>
+        <p>Usa el correo con el que creaste tu cuenta.</p>
 
-                    <!-- Contenedor dinámico para alertas y mensajes -->
-                    <div id="loginAlert" class="alert d-none" role="alert"></div>
+        <!-- Contenedor de alertas de la vista -->
+        <div id="loginAlert" class="aviso" role="alert" aria-live="polite" hidden></div>
 
-                    <form id="loginForm" novalidate>
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold">Correo Electrónico</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted"><i class="bi bi-envelope"></i></span>
-                                <input type="email" class="form-control" id="email" name="email" placeholder="ejemplo@correo.com" required autocomplete="email">
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="password" class="form-label fw-semibold">Contraseña</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light text-muted"><i class="bi bi-lock"></i></span>
-                                <input type="password" class="form-control" id="password" name="password" placeholder="Tu contraseña" required autocomplete="current-password">
-                            </div>
-                        </div>
-
-                        <button type="submit" id="submitBtn" class="btn btn-success w-100 py-2 fw-semibold">
-                            <span id="btnText"><i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión</span>
-                            <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                        </button>
-                    </form>
-
-                    <hr class="my-4 text-muted">
-
-                    <div class="text-center">
-                        <span class="text-muted small">¿Aún no tienes una cuenta? </span>
-                        <a href="/register" class="text-decoration-none fw-semibold text-success small">Regístrate aquí</a>
-                    </div>
-                </div>
+        <form id="loginForm" class="formulario" action="/login" method="POST" novalidate>
+            <div class="campo">
+                <label for="email">Correo electrónico</label>
+                <input id="email" name="email" type="email" autocomplete="email"
+                       required placeholder="nombre@correo.com">
             </div>
+
+            <div class="campo">
+                <label for="password">Contraseña</label>
+                <input id="password" name="password" type="password"
+                       autocomplete="current-password" required minlength="8">
+            </div>
+
+            <button class="boton boton--ancho" type="submit" id="submitBtn">
+                <span id="btnText">Ingresar</span>
+                <span id="btnSpinner" class="spinner-border spinner-border-sm d-none"
+                      role="status" aria-hidden="true"></span>
+            </button>
+        </form>
+
+        <p class="pie-formulario">
+            ¿Aún no tienes cuenta? <a href="/register">Crea una cuenta</a>
+        </p>
+    </section>
+
+    <section class="demo" aria-labelledby="titulo-demo">
+        <h2 id="titulo-demo">Un solo acceso, dos experiencias</h2>
+        <p>
+            El sistema identifica tu rol automáticamente y te lleva al panel que te corresponde.
+            Tu contraseña se valida de forma segura y nunca se almacena en texto plano.
+        </p>
+
+        <div class="demo__lista">
+            <article class="demo__item demo__item--simple">
+                <strong>Clientes</strong>
+                <span>Alquila bicicletas, consulta tu viaje activo y revisa tu historial.</span>
+            </article>
+
+            <article class="demo__item demo__item--simple">
+                <strong>Administradores</strong>
+                <span>Gestiona estaciones, bicicletas y la operación diaria de la flota.</span>
+            </article>
+
+            <article class="demo__item demo__item--simple">
+                <strong>Sesión protegida</strong>
+                <span>Acceso con contraseñas cifradas y regeneración segura del identificador de sesión.</span>
+            </article>
         </div>
-    </div>
+    </section>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('loginForm');
-    const alertBox = document.getElementById('loginAlert');
-    const submitBtn = document.getElementById('submitBtn');
-    const btnText = document.getElementById('btnText');
+    const form       = document.getElementById('loginForm');
+    const alertBox   = document.getElementById('loginAlert');
+    const submitBtn  = document.getElementById('submitBtn');
+    const btnText    = document.getElementById('btnText');
     const btnSpinner = document.getElementById('btnSpinner');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const email = document.getElementById('email').value.trim();
+        const email    = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
 
-        // Limpiar estado de alerta
-        alertBox.className = 'alert d-none';
-        alertBox.textContent = '';
+        clearAlert();
 
         if (!email || !password) {
             showAlert('Por favor completa todos los campos requeridos.', 'warning');
             return;
         }
 
-        // Estado de carga
         setLoading(true);
 
         try {
@@ -96,9 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok && result.success) {
                 showAlert(result.message || 'Inicio de sesión exitoso. Redirigiendo...', 'success');
+
+                const redirectUrl = (result.data && result.data.redirect)
+                    ? result.data.redirect
+                    : '/login';
+
                 setTimeout(() => {
-                    window.location.href = '/login';
-                }, 1200);
+                    window.location.href = redirectUrl;
+                }, 900);
             } else {
                 showAlert(result.message || 'Error al iniciar sesión.', 'danger');
                 setLoading(false);
@@ -110,19 +123,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function showAlert(message, type) {
-        alertBox.textContent = message;
-        alertBox.className = `alert alert-${type} d-block mb-3`;
+        const variant = type === 'danger'
+            ? 'aviso--rojo'
+            : (type === 'warning' ? 'aviso--ambar' : 'aviso--verde');
+
+        alertBox.className = `aviso ${variant}`;
+        alertBox.innerHTML = '';
+
+        const icon = document.createElement('span');
+        icon.className = 'aviso__icono';
+        icon.textContent = type === 'success' ? '✓' : '!';
+
+        const text = document.createElement('div');
+        text.textContent = message;
+
+        alertBox.append(icon, text);
+        alertBox.hidden = false;
+    }
+
+    function clearAlert() {
+        alertBox.hidden = true;
+        alertBox.className = 'aviso';
+        alertBox.textContent = '';
     }
 
     function setLoading(isLoading) {
         submitBtn.disabled = isLoading;
-        if (isLoading) {
-            btnText.classList.add('d-none');
-            btnSpinner.classList.remove('d-none');
-        } else {
-            btnText.classList.remove('d-none');
-            btnSpinner.classList.add('d-none');
-        }
+        btnText.classList.toggle('d-none', isLoading);
+        btnSpinner.classList.toggle('d-none', !isLoading);
     }
 });
 </script>

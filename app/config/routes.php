@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 /**
  * Enrutador de la Aplicación - eBike Management System (EMS)
- * 
+ *
  * Mapea las peticiones HTTP (método + URI) hacia los controladores correspondientes.
  */
 
 use App\Controllers\AuthController;
-use App\Controllers\StationController;
 use App\Controllers\BikeController;
+use App\Controllers\DashboardController;
+use App\Controllers\HomeController;
+use App\Controllers\RentalController;
+use App\Controllers\StationController;
 
-$method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+$method     = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 $requestUri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $scriptName = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? ''));
 
@@ -30,16 +33,37 @@ if (strpos($path, '/index.php') === 0) {
 
 $path = '/' . trim($path, '/');
 
-$authController = new AuthController();
-$stationController = new StationController();
-$bikeController = new BikeController();
+// Compatibilidad con enlaces del diseño estático del frontend.
+$legacyRedirects = [
+    '/index.html'    => '/',
+    '/login.html'    => '/login',
+    '/registro.html' => '/register',
+];
+
+if ($method === 'GET' && isset($legacyRedirects[$path])) {
+    header('Location: ' . $legacyRedirects[$path], true, 301);
+    exit;
+}
+
+$homeController      = new HomeController();
+$authController      = new AuthController();
+$stationController   = new StationController();
+$bikeController      = new BikeController();
+$rentalController    = new RentalController();
+$dashboardController = new DashboardController();
 
 // Mapeo y despacho de rutas
 switch ("{$method} {$path}") {
-    // -------------------------------------------------------------
-    // Módulo IAM (Autenticación y Sesiones)
-    // -------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
+    // Portada pública
+    // ─────────────────────────────────────────────────────────────────────────
     case 'GET /':
+        $homeController->index();
+        break;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Módulo IAM (Autenticación y Sesiones)
+    // ─────────────────────────────────────────────────────────────────────────
     case 'GET /login':
         $authController->showLogin();
         break;
@@ -61,9 +85,43 @@ switch ("{$method} {$path}") {
         $authController->logout();
         break;
 
-    // -------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
+    // Paneles post-login (Dashboards)
+    // ─────────────────────────────────────────────────────────────────────────
+    case 'GET /admin/dashboard':
+        $dashboardController->adminIndex();
+        break;
+
+    case 'GET /user/dashboard':
+        $dashboardController->userIndex();
+        break;
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Core Engine: Alquileres (API JSON)
+    // ─────────────────────────────────────────────────────────────────────────
+    case 'POST /api/rental/start':
+        $rentalController->startRental();
+        break;
+
+    case 'POST /api/rental/end':
+        $rentalController->endRental();
+        break;
+
+    case 'GET /api/rental/active':
+        $rentalController->getActive();
+        break;
+
+    case 'GET /api/rental/history':
+        $rentalController->getHistory();
+        break;
+
+    case 'GET /api/bikes/by-station':
+        $rentalController->getAvailableByStation();
+        break;
+
+    // ─────────────────────────────────────────────────────────────────────────
     // Módulo Gestión de Flota: Estaciones (Admin)
-    // -------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
     case 'GET /admin/stations':
         $stationController->index();
         break;
@@ -88,9 +146,9 @@ switch ("{$method} {$path}") {
         $stationController->delete();
         break;
 
-    // -------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
     // Módulo Gestión de Flota: Bicicletas (Admin)
-    // -------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
     case 'GET /admin/bikes':
         $bikeController->index();
         break;
@@ -127,9 +185,9 @@ switch ("{$method} {$path}") {
         $bikeController->delete();
         break;
 
-    // -------------------------------------------------------------
-    // Manejo de Error 404 (Recurso no encontrado)
-    // -------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
+    // 404 — Recurso no encontrado
+    // ─────────────────────────────────────────────────────────────────────────
     default:
         http_response_code(404);
         $title = '404 - Página no encontrada';
@@ -139,8 +197,8 @@ switch ("{$method} {$path}") {
             <div class="my-5">
                 <i class="bi bi-exclamation-triangle text-warning display-1"></i>
                 <h1 class="display-5 fw-bold mt-3">404 - Página No Encontrada</h1>
-                <p class="lead text-muted">La ruta solicitada <code><?= htmlspecialchars($path) ?></code> no existe en el sistema.</p>
-                <a href="/login" class="btn btn-success mt-3">
+                <p class="lead text-muted">La ruta <code><?= htmlspecialchars($path) ?></code> no existe en el sistema.</p>
+                <a href="/" class="btn btn-success mt-3">
                     <i class="bi bi-house-door me-1"></i>Volver al Inicio
                 </a>
             </div>

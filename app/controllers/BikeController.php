@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Helpers\Validator;
+use App\Middleware\AuthMiddleware;
 use App\Models\Bike;
 use App\Models\Station;
 use Exception;
@@ -31,6 +32,8 @@ class BikeController
      */
     public function index(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $bikes = $this->bikeModel->getAll();
         $stations = $this->stationModel->getAll();
         require_once dirname(__DIR__) . '/views/admin/bikes/index.php';
@@ -41,6 +44,8 @@ class BikeController
      */
     public function getBikeJson(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $id = (int)($_GET['id'] ?? 0);
         if ($id <= 0) {
             $this->jsonResponse(false, 'ID de bicicleta no válido.', null, 400);
@@ -61,6 +66,8 @@ class BikeController
      */
     public function available(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $availableBikes = $this->bikeModel->getAvailableBikes();
         $this->jsonResponse(true, 'Listado de bicicletas disponibles.', $availableBikes);
     }
@@ -70,6 +77,8 @@ class BikeController
      */
     public function create(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
 
         $missing = Validator::checkRequired($input, ['modelo', 'num_serie']);
@@ -128,6 +137,8 @@ class BikeController
      */
     public function update(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
 
         $id = (int)($input['id_bicicleta'] ?? 0);
@@ -192,6 +203,8 @@ class BikeController
      */
     public function updateBattery(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
 
         $id = (int)($input['id_bicicleta'] ?? 0);
@@ -219,6 +232,8 @@ class BikeController
      */
     public function updateStatus(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
 
         $id = (int)($input['id_bicicleta'] ?? 0);
@@ -248,6 +263,8 @@ class BikeController
      */
     public function assignStation(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
 
         $id = (int)($input['id_bicicleta'] ?? 0);
@@ -271,6 +288,8 @@ class BikeController
      */
     public function maintenance(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
 
         $id = (int)($input['id_bicicleta'] ?? 0);
@@ -294,6 +313,8 @@ class BikeController
      */
     public function delete(): void
     {
+        AuthMiddleware::requireAdmin();
+
         $input = $this->getRequestData();
         $id = (int)($input['id_bicicleta'] ?? 0);
 
